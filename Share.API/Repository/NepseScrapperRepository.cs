@@ -1,0 +1,97 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AngleSharp;
+using Microsoft.EntityFrameworkCore;
+using Share.API.Common.Results;
+using Share.API.Enums;
+using Share.API.IRepository;
+using Share.API.Models;
+
+namespace Share.API.Repository
+{
+    public class NepseScrapperRepository : INepseScrapperRepository
+    {
+        private readonly DatabaseContext _context;
+        public NepseScrapperRepository(DatabaseContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<DataResult> SeedAllCompanies()
+        {
+            // Load default configuration
+            var config = Configuration.Default.WithDefaultLoader();
+            // Create a new browsing context
+            var context = BrowsingContext.New(config);
+            // This is where the HTTP request happens, returns <IDocument> that // we can query later
+            var companyHTML = await context.OpenAsync("http://www.nepalstock.com/company/index/1/?stock-name=&stock-symbol=&sector-id=&_limit=50000");
+            var companyData = companyHTML.QuerySelectorAll("#company-list .my-table tr").ToArray();
+            var companyHTML2 = await context.OpenAsync("http://www.nepalstock.com/promoter-share/index/1/?stock-name=&stock-symbol=&_limit=500000");
+            var companyData2 = companyHTML2.QuerySelectorAll("#company-list .my-table tr").ToArray();
+            DateTime currentDateTime = DateTime.Now;
+            List<Company> companies = new List<Company>();
+
+            using (var db = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    foreach (var item in companyData)
+                    {
+                        var attr = item.GetAttribute("align");
+                        if(item.ClassName == null && attr == null && item.Children.Count() == 6)
+                        {
+                            var childItem = item.Children[5].Children[0].GetAttribute("href");
+                            var id = childItem.Split('/').LastOrDefault();
+                            var prevCompany = (await _context.Company.Where(x => x.Symbol.ToLower().Equals(item.Children[3].TextContent.ToLower())).FirstOrDefaultAsync()) ?? new Company();
+                            prevCompany.Id = Int32.Parse(id);
+                            prevCompany.Symbol = item.Children[3].TextContent;
+                            prevCompany.Name = item.Children[2].TextContent.Trim( new Char[] { ' ', '\n' } );
+                            prevCompany.Sector = item.Children[4].TextContent;
+                            prevCompany.LiveTradingData = null;
+                            if(!await _context.Company.AnyAsync(x => x.Id == prevCompany.Id && x.Symbol.ToLower() == prevCompany.Symbol.ToLower()))
+                            {
+                                companies.Add(prevCompany);
+                            }
+                        }
+                    }
+
+                    foreach (var item in companyData2)
+                    {
+                        var attr = item.GetAttribute("align");
+                        if(item.ClassName == null && attr == null && item.Children.Count() == 5)
+                        {
+                            var childItem = item.Children[4].Children[0].GetAttribute("href");
+                            var id = childItem.Split('/').LastOrDefault();
+                            var prevCompany = (await _context.Company.Where(x => x.Symbol.ToLower().Equals(item.Children[3].TextContent.ToLower())).FirstOrDefaultAsync()) ?? new Company();
+                            prevCompany.Id = Int32.Parse(id);
+                            prevCompany.Symbol = item.Children[3].TextContent;
+                            prevCompany.Name = item.Children[2].TextContent.Trim( new Char[] { ' ', '\n' } );
+                            prevCompany.LiveTradingData = null;
+                            if(!await _context.Company.AnyAsync(x => x.Id == prevCompany.Id && x.Symbol.ToLower() == prevCompany.Symbol.ToLower()))
+                            {
+                                companies.Add(prevCompany);
+                            }
+                        }
+                    }
+                    
+                    await _context.Company.AddRangeAsync(companies);
+                    await _context.SaveChangesAsync();
+                    await db.CommitAsync();
+                } 
+                catch(DbUpdateException ex) 
+                {
+                    db.Rollback();
+                    return new DataResult { ResultType = ResultTypeOption.Failed, Message = ex.Message };
+                }
+                catch(Exception ex)
+                {
+                    db.Rollback();
+                    return new DataResult { ResultType = ResultTypeOption.Failed, Message = ex.Message };
+                }
+            }
+            return new DataResult { ResultType = ResultTypeOption.Success, Message = "Successfully Scraped Nepse Companies" };
+        }
+    }
+}
