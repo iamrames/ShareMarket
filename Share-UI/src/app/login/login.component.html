@@ -1,0 +1,39 @@
+<div class="text-center">
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+    <h2 class="text-center text-primary">Login</h2>
+    <hr>
+
+    <div class="form-group col-4 align-center">
+        <input type="text"
+            [ngClass] = "{'is-invalid': isInvalid('username')}"
+            class="form-control"
+            formControlName="username"
+            placeholder="Username">
+        <div class="invalid-feedback"
+            *ngIf="hasError('username', 'required')">
+            Please provide a username!!</div>
+    </div>
+
+    <div class="form-group col-4 align-center">
+        <input type="password"
+            [ngClass] = "{'is-invalid': isInvalid('password')}"
+            class="form-control"
+            placeholder="Password"
+            formControlName="password">
+        <div class="invalid-feedback"
+            *ngIf="hasError('password', 'required')">
+            Password is required!!</div>
+        <div class="invalid-feedback"
+            *ngIf="hasError('password', 'minlength')">
+            Password must be atleast 4 character!!</div>
+        <div class="invalid-feedback"
+            *ngIf="hasError('password', 'maxlength')">
+            Password cannot exceed 8 character!!</div>
+    </div>
+
+    <div class="form-group text-center">
+        <button class="btn btn-success mr-2" [disabled]="!loginForm.valid" type="submit">Login</button>
+        <button class="btn btn-default" type="button" (click)="cancel()">Cancel</button>
+    </div>
+    </form>
+</div>

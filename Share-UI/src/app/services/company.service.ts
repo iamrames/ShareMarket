@@ -15,7 +15,7 @@ export class CompanyService {
   constructor(private http: HttpClient) { }
 
   getAll(): Observable<Company[]> {
-    return this.http.get<DataResult<Company[]>>(`${this.api}/Company`)
+    return this.http.get<DataResult<Company[]>>(this.api + 'Company')
     .pipe(
       map(response => response.data)
     );

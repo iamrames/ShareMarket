@@ -1,6 +1,6 @@
-import { TargetService } from './../../services/target.service';
-import { CompanyService } from './../../services/company.service';
-import { Target } from './../../models/target';
+import { TargetService } from '../../../services/target.service';
+import { CompanyService } from '../../../services/company.service';
+import { Target } from '../../../models/target';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ResultTypeOption } from 'src/app/enums/result-type-option.enum';
@@ -36,10 +36,10 @@ export class TargetFormComponent implements OnInit {
 
   save(target): void {
     if (this.id) {
-      console.log("Update");
-       this.targetService.updateTarget(this.id, target);
+      console.log('Update');
+      this.targetService.updateTarget(this.id, target);
       } else {
-        console.log("Create");
+        console.log('Create');
         this.targetService.create(target);
       }
     this.router.navigate(['']);

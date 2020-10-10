@@ -20,18 +20,17 @@ export class PqgridComponent implements AfterViewInit, OnChanges {
     @Input() options: any;
     grid: pq.gridT.instance;
 
-    private createGrid(){
+    private createGrid(): void{
         this.grid = pq.grid(this.div.nativeElement, this.options);
     }
 
-    ngOnChanges(obj: SimpleChanges){
-        // debugger;
+    ngOnChanges(obj: SimpleChanges): void{
         if (!obj.options.firstChange ){// grid is destroyed and recreated only when whole options object is changed to new reference.
             this.grid.destroy();
             this.createGrid();
         }
     }
-    ngAfterViewInit() {
+    ngAfterViewInit(): void {
         this.createGrid();
     }
   }

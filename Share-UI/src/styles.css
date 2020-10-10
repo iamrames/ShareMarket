@@ -1,7 +1,4 @@
 /* You can add global styles to this file, and also import other style files */
-@import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
-@import '../node_modules/font-awesome/css/font-awesome.min.css';
-
 @import url('https://unpkg.com/jquery-ui-pack@1.12.3/jquery-ui.css');
 
 @import url('https://unpkg.com/jquery-ui-pack@1.12.3/jquery-ui.structure.css');
@@ -11,3 +8,6 @@
 @import '~pqgrid/pqgrid.min.css';
 @import '~pqgrid/pqgrid.ui.min.css';
 @import '~pqgrid/themes/steelblue/pqgrid.css';
+@import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+@import "../node_modules/alertifyjs/build/css/alertify.min.css";
+@import "../node_modules/alertifyjs/build/css/themes/bootstrap.min.css";

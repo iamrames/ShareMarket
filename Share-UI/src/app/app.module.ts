@@ -1,45 +1,51 @@
-import { TargetListComponent } from './target/target-list/target-list.component';
-import { TargetFormComponent } from './Target/target-form/target-form.component';
-import { CompanyService } from './services/company.service';
-import { TargetService } from './services/target.service';
+import { appRoutes } from './routes';
+import { AuthGuard } from './guards/auth.guard';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
-import { MarketDepthComponent } from './market-depth/market-depth.component';
 
-import { PqgridComponent } from './pqgrid.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { NavComponent } from './nav/nav.component';
+import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
+import { JwtModule } from '@auth0/angular-jwt';
+import { HomeComponent } from './home/home.component';
+
+export function tokenGetter() {
+  return localStorage.getItem('token');
+}
 
 @NgModule({
   declarations: [
-    AppComponent,
-    PqgridComponent,
-    MarketDepthComponent,
-    TargetFormComponent,
-    TargetListComponent
+      AppComponent,
+      NavComponent,
+      LoginComponent,
+      RegisterComponent,
+      HomeComponent
    ],
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     BrowserModule,
     HttpClientModule,
-    RouterModule.forRoot([
-      { path: '', component: MarketDepthComponent },
-      { path: 'target', component: TargetListComponent },
-      { path: 'target/create', component: TargetFormComponent}
-    ]),
-  ],
-  exports: [
-    PqgridComponent,
-    FormsModule
+    RouterModule.forRoot(appRoutes),
+    DashboardModule,
+    JwtModule.forRoot({
+      config: {
+         tokenGetter,
+         allowedDomains: ['localhost:5000'],
+         disallowedRoutes: ['localhost:5000/api/auth']
+      }
+   }),
   ],
   providers: [
-    TargetService,
-    CompanyService
+    AuthGuard
   ],
   bootstrap: [AppComponent]
 })

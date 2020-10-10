@@ -9,6 +9,7 @@ using Share.API.Dtos;
 using Share.API.Enums;
 using Share.API.IRepository;
 using Share.API.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Share.API.Controllers
 {
@@ -45,6 +46,7 @@ namespace Share.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
             try
@@ -74,6 +76,7 @@ namespace Share.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> Get(int id)
         {
             try
