@@ -83,7 +83,6 @@ namespace Share.API.Repository
                         prevLiveTradingData.Qty = Decimal.Parse(item.ChildNodes[(int)ShareDataOptions.Qty].TextContent);
                         prevLiveTradingData.UpdatedDate = currentDateTime;
                         prevLiveTradingData.Source = ScrapingSource.MeroLagani;
-                        prevLiveTradingData.Company = null;
                         liveTradingData.Add(prevLiveTradingData);
                         #endregion
 
@@ -92,16 +91,13 @@ namespace Share.API.Repository
                         var prevLiveTradingDataHistory = await _context.LiveTradingDataHistory
                             .Where(x => x.Symbol.ToLower().Equals(prevLiveTradingData.Symbol.ToLower()) && x.LTP == prevLiveTradingData.LTP && x.LTV == prevLiveTradingData.LTV
                                 && x.ChangePercentage == prevLiveTradingData.ChangePercentage && x.High == prevLiveTradingData.High && x.Low == prevLiveTradingData.Low
-                                && x.Qty == prevLiveTradingData.Qty && x.Source == ScrapingSource.MeroLagani && x.UpdatedDate.Date == currentDateTime.Date)
-                            .OrderByDescending(x => x.UpdatedDate).FirstOrDefaultAsync() ?? new LiveTradingDataHistory();
-                        DateTime latestDate = prevLiveTradingDataHistory?.UpdatedDate ?? currentDateTime.AddDays(1);
+                                && x.Qty == prevLiveTradingData.Qty && x.Source == ScrapingSource.MeroLagani 
+                                && x.UpdatedDate.Date == currentDateTime.Date)
+                            .OrderByDescending(x => x.UpdatedDate).FirstOrDefaultAsync();
 
-                        // This condition is used to find if the given value is the latest updated value or not, if there exist other value after 'prevLiveTradingDataHistory'
-                        // then new data is added else the date is updated to current date
-                        if(await _context.LiveTradingDataHistory.AnyAsync(x => x.UpdatedDate > latestDate && x.Source == ScrapingSource.MeroLagani))
+                        if(prevLiveTradingDataHistory == null)
                         {
-                            prevLiveTradingDataHistory.UpdatedDate = currentDateTime;
-                        } else {
+                            prevLiveTradingDataHistory = new LiveTradingDataHistory();
                             prevLiveTradingDataHistory.CompanyId = prevLiveTradingData.CompanyId;
                             prevLiveTradingDataHistory.Symbol = prevLiveTradingData.Symbol;
                             prevLiveTradingDataHistory.LTP = prevLiveTradingData.LTP;
@@ -114,8 +110,31 @@ namespace Share.API.Repository
                             prevLiveTradingDataHistory.UpdatedDate = currentDateTime;
                             prevLiveTradingDataHistory.Source = ScrapingSource.MeroLagani;
                         }
+                        else
+                        {
+                            DateTime latestDate = prevLiveTradingDataHistory.UpdatedDate;
+                            // This condition is used to find if the given value is the latest updated value or not, if there exist other value after 'prevLiveTradingDataHistory'
+                            // then new data is added else the date is updated to current date
+                            if(await _context.LiveTradingDataHistory.AnyAsync(x => x.UpdatedDate > latestDate && x.Source == ScrapingSource.MeroLagani))
+                            {
+                                prevLiveTradingDataHistory.UpdatedDate = currentDateTime;
+                            }
+                            else 
+                            {
+                                prevLiveTradingDataHistory.CompanyId = prevLiveTradingData.CompanyId;
+                                prevLiveTradingDataHistory.Symbol = prevLiveTradingData.Symbol;
+                                prevLiveTradingDataHistory.LTP = prevLiveTradingData.LTP;
+                                prevLiveTradingDataHistory.LTV = prevLiveTradingData.LTV;
+                                prevLiveTradingDataHistory.ChangePercentage = prevLiveTradingData.ChangePercentage;
+                                prevLiveTradingDataHistory.High = prevLiveTradingData.High;
+                                prevLiveTradingDataHistory.Low = prevLiveTradingData.Low;
+                                prevLiveTradingDataHistory.Open = prevLiveTradingData.Open;
+                                prevLiveTradingDataHistory.Qty = prevLiveTradingData.Qty;
+                                prevLiveTradingDataHistory.UpdatedDate = currentDateTime;
+                                prevLiveTradingDataHistory.Source = ScrapingSource.MeroLagani;
+                            }
+                        }
 
-                        prevLiveTradingDataHistory.Company = null;
                         liveTradingDataHistory.Add(prevLiveTradingDataHistory);
                         #endregion
                     }

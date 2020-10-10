@@ -12,5 +12,6 @@ namespace Share.API.Models
         public string Address { get; set; }
         public string Sector { get; set; }
         public IEnumerable<LiveTradingData> LiveTradingData { get; set; }
+        public IEnumerable<LiveTradingDataHistory> LiveTradingDataHistory { get; set; }
     }
 }
