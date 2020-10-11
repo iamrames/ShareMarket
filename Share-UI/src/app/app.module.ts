@@ -1,3 +1,4 @@
+import { ErrorInterceptorProvider } from './services/error.interceptor';
 import { appRoutes } from './routes';
 import { AuthGuard } from './guards/auth.guard';
 import { DashboardModule } from './dashboard/dashboard.module';
@@ -45,7 +46,8 @@ export function tokenGetter() {
    }),
   ],
   providers: [
-    AuthGuard
+    AuthGuard,
+    ErrorInterceptorProvider
   ],
   bootstrap: [AppComponent]
 })
