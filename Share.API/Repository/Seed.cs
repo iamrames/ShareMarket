@@ -25,6 +25,7 @@ namespace Share.API.Repository
         {
             RecurringJob.AddOrUpdate(() =>_nepseRepo.SeedAllCompanies(), Cron.Monthly);
             RecurringJob.AddOrUpdate(() => _meroLaganiRepo.SeedMeroLaganiLiveTradingData(), Cron.Minutely);
+            RecurringJob.AddOrUpdate(() => _nepseRepo.SeedFloorSheet(), Cron.Hourly);
         }
     }
 }

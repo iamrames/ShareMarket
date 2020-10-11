@@ -42,6 +42,7 @@ namespace Share.API.Repository
                     Low = item.Low,
                     Open = item.Open,
                     Qty = item.Qty,
+                    EntryDate = item.EntryDate,
                     UpdatedDate = item.UpdatedDate,
                     Source = item.Source,
                     TargetLevel = targetLevel?.Level
@@ -71,7 +72,12 @@ namespace Share.API.Repository
                     foreach (var item in shareData)
                     {
                         #region LiveTradingData
-                        var prevLiveTradingData = (await _context.LiveTradingData.Where(x => x.Symbol.ToLower().Equals(item.ChildNodes[(int)ShareDataOptions.Symbol].TextContent.ToLower())).FirstOrDefaultAsync()) ?? new LiveTradingData();
+                        var prevLiveTradingData = (await _context.LiveTradingData.Where(x => x.Symbol.ToLower().Equals(item.ChildNodes[(int)ShareDataOptions.Symbol].TextContent.ToLower())).FirstOrDefaultAsync());
+                        if(prevLiveTradingData == null)
+                        {
+                            prevLiveTradingData = new LiveTradingData();
+                            prevLiveTradingData.EntryDate = currentDateTime;
+                        }
                         prevLiveTradingData.CompanyId = (await _context.Company.Where(x => x.Symbol.ToLower().Equals(item.ChildNodes[(int)ShareDataOptions.Symbol].TextContent.ToLower())).FirstOrDefaultAsync()).Id;
                         prevLiveTradingData.Symbol = item.ChildNodes[(int)ShareDataOptions.Symbol].TextContent;
                         prevLiveTradingData.LTP = Decimal.Parse(item.ChildNodes[(int)ShareDataOptions.LTP].TextContent);
@@ -107,6 +113,7 @@ namespace Share.API.Repository
                             prevLiveTradingDataHistory.Low = prevLiveTradingData.Low;
                             prevLiveTradingDataHistory.Open = prevLiveTradingData.Open;
                             prevLiveTradingDataHistory.Qty = prevLiveTradingData.Qty;
+                            prevLiveTradingDataHistory.EntryDate = currentDateTime;
                             prevLiveTradingDataHistory.UpdatedDate = currentDateTime;
                             prevLiveTradingDataHistory.Source = ScrapingSource.MeroLagani;
                         }

@@ -15,6 +15,7 @@ namespace Share.API.Dtos
         public decimal Low { get; set; }
         public decimal Open { get; set; }
         public decimal Qty { get; set; }
+        public DateTime EntryDate { get; set; }
         public ScrapingSource Source { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string CompanyName { get; set; }

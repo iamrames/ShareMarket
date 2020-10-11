@@ -6,5 +6,6 @@ namespace Share.API.IRepository
     public interface INepseScrapperRepository
     {
         Task<DataResult> SeedAllCompanies();
+        Task<DataResult> SeedFloorSheet();
     }
 }

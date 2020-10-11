@@ -43,6 +43,43 @@ namespace Share.API.Migrations
                     b.ToTable("Company");
                 });
 
+            modelBuilder.Entity("Share.API.Models.FloorSheet", b =>
+                {
+                    b.Property<decimal>("ContractNo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("BuyerBroker")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("SellerBroker")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Symbol")
+                        .HasColumnType("text");
+
+                    b.HasKey("ContractNo");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("FloorSheets");
+                });
+
             modelBuilder.Entity("Share.API.Models.LiveTradingData", b =>
                 {
                     b.Property<int>("Id")
@@ -55,6 +92,9 @@ namespace Share.API.Migrations
 
                     b.Property<int>("CompanyId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<decimal>("High")
                         .HasColumnType("numeric");
@@ -102,6 +142,9 @@ namespace Share.API.Migrations
 
                     b.Property<int>("CompanyId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<decimal>("High")
                         .HasColumnType("numeric");
@@ -188,6 +231,15 @@ namespace Share.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Share.API.Models.FloorSheet", b =>
+                {
+                    b.HasOne("Share.API.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Share.API.Models.LiveTradingData", b =>

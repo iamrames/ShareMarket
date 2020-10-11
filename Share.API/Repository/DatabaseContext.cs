@@ -13,6 +13,7 @@ namespace Share.API.Repository
         public DbSet<LiveTradingDataHistory> LiveTradingDataHistory { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Target> Targets { get; set; }
+        public DbSet<FloorSheet> FloorSheets { get; set; }
         private readonly IConfiguration _configuration;
         
         public DatabaseContext(IConfiguration configuration)
