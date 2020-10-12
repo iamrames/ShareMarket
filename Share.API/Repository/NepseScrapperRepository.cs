@@ -104,6 +104,8 @@ namespace Share.API.Repository
             // This is where the HTTP request happens, returns <IDocument> that // we can query later
             var floorSheetHTML = await context.OpenAsync("http://www.nepalstock.com/main/floorsheet/index/1/?contract-no=&stock-symbol=&buyer=&seller=&_limit=30000");
             var floorSheetData = floorSheetHTML.QuerySelectorAll("#home-contents .my-table tr").ToArray();
+            var nextFloorSheetHTML = await context.OpenAsync("http://www.nepalstock.com/main/floorsheet/index/1001/?contract-no=&stock-symbol=&buyer=&seller=&_limit=30000");
+            var nextFloorSheetData = nextFloorSheetHTML.QuerySelectorAll("#home-contents .my-table tr").ToArray();
             DateTime currentDateTime = DateTime.Now;
             List<FloorSheet> floorSheets = new List<FloorSheet>();
             using (var db = _context.Database.BeginTransaction())
@@ -112,6 +114,29 @@ namespace Share.API.Repository
                 {
                     var floorList = _context.FloorSheets.AsQueryable();
                     foreach (var item in floorSheetData)
+                    {
+                        FloorSheet floorSheet = new FloorSheet();
+                        var attr = item.GetAttribute("align");
+                        if(item.ClassName == null && attr == null && item.Children.Count() == 8)
+                        {
+                            ulong ContractNo = ulong.Parse(item.Children[1].TextContent);
+                            if(!await floorList.AnyAsync(x => x.ContractNo == ContractNo)) 
+                            {
+                                floorSheet.CompanyId = (await _context.Company.Where(x => x.Symbol.ToLower().Equals(item.Children[2].TextContent.ToLower())).FirstOrDefaultAsync()).Id;
+                                floorSheet.ContractNo = ContractNo;
+                                floorSheet.Symbol = (item.Children[2].TextContent);
+                                floorSheet.BuyerBroker = int.Parse(item.Children[3].TextContent);
+                                floorSheet.SellerBroker = int.Parse(item.Children[4].TextContent);
+                                floorSheet.Quantity = int.Parse(item.Children[5].TextContent);
+                                floorSheet.Rate = decimal.Parse(item.Children[6].TextContent);
+                                floorSheet.Amount = decimal.Parse(item.Children[7].TextContent);
+                                floorSheet.EntryDate = currentDateTime;
+                                floorSheets.Add(floorSheet);
+                            }
+                        }
+                    }
+
+                    foreach (var item in nextFloorSheetData)
                     {
                         FloorSheet floorSheet = new FloorSheet();
                         var attr = item.GetAttribute("align");
